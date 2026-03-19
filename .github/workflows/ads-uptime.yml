@@ -25,13 +25,11 @@ jobs:
       run: npx playwright install --with-deps chromium
 
     - name: Run Uptime Check
-      # We use xvfb-run as a safety net for the virtual display
-      # --project=chromium targets the specific browser
+      # We remove '--project=chromium' and use '--browser=chromium' instead
       run: |
-        xvfb-run npx playwright test tests/ads-monitor.spec.js --project=chromium
+        xvfb-run npx playwright test tests/ads-monitor.spec.js --browser=chromium
       env:
         CI: true
-        # This tells Chrome specifically to run without a GPU in the Linux VM
         PLAYWRIGHT_CHROMIUM_ARGS: '--no-sandbox --disable-setuid-sandbox --disable-gpu'
 
     - name: Upload Report on Failure
