@@ -9,7 +9,6 @@ jobs:
   monitor:
     runs-on: ubuntu-latest
     env:
-      # This clears the deprecation warning and forces the use of Node 24
       FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
     steps:
     - uses: actions/checkout@v5
@@ -17,20 +16,23 @@ jobs:
     - name: Setup Node.js
       uses: actions/setup-node@v5
       with:
-        node-version: '24' 
-        cache: 'npm'
+        node-version: '24'
 
     - name: Install dependencies
-      run: npm ci
+      run: npm install
 
-    - name: Install Playwright Browsers & OS Dependencies
-      # The '--with-deps' is the critical part for Exit Code 254
+    - name: Install Playwright Browsers & OS Deps
       run: npx playwright install --with-deps chromium
 
     - name: Run Uptime Check
-      run: npx playwright test tests/ads-monitor.spec.js
+      # We use xvfb-run as a safety net for the virtual display
+      # --project=chromium targets the specific browser
+      run: |
+        xvfb-run npx playwright test tests/ads-monitor.spec.js --project=chromium
       env:
         CI: true
+        # This tells Chrome specifically to run without a GPU in the Linux VM
+        PLAYWRIGHT_CHROMIUM_ARGS: '--no-sandbox --disable-setuid-sandbox --disable-gpu'
 
     - name: Upload Report on Failure
       if: failure()
