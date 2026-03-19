@@ -28,7 +28,7 @@ jobs:
       run: npx playwright install --with-deps chromium
 
     - name: Run Uptime Check
-      run: npx playwright test tests/ads-monitor.spec.js
+      run: xvfb-run npx playwright test tests/ads-monitor.spec.js
       env:
         CI: true
 
